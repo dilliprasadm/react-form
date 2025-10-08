@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React Form</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      function App() {
+        const [data, setData] = React.useState({
+          name: "",
+          email: "",
+          age: "",
+          phone: "",
+          gender: "",
+          range: "",
+          image: null,
+          file: null,
+          checkbox: false,
+        });
+        const [imagePreview, setImagePreview] = React.useState(null);
+        const [filePreview, setFilePreview] = React.useState(null);
+        const [submitted, setSubmitted] = React.useState(false);
+        const [error, setError] = React.useState({});
+
+        React.useEffect(() => {
+          if (data.image) {
+            const imgUrl = URL.createObjectURL(data.image);
+            setImagePreview(imgUrl);
+            return () => URL.revokeObjectURL(imgUrl);
+          }
+        }, [data.image]);
+
+        React.useEffect(() => {
+          if (data.file) {
+            const fileUrl = URL.createObjectURL(data.file);
+            setFilePreview(fileUrl);
+            return () => URL.revokeObjectURL(fileUrl);
+          }
+        }, [data.file]);
+
+        const handleChange = (e) => {
+          const { name, value, type, checked, files } = e.target;
+          if (type === "checkbox") {
+            setData({ ...data, [name]: checked });
+          } else if (type === "file") {
+            setData({ ...data, [name]: files[0] });
+          } else {
+            setData({ ...data, [name]: value });
+          }
+        };
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+
+          const validationErrors = {};
+          if (!data.name.trim()) {
+            validationErrors.name = "Name is required.";
+          }
+          if (!data.email.trim()) {
+            validationErrors.email = "Email is requried.";
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            validationErrors.email = "Email is not valid.";
+          }
+
+          if (!data.age.trim()) {
+            validationErrors.age = "Age is required.";
+          }
+
+          if (!data.phone.trim()) {
+            validationErrors.phone = "Phone number is required";
+          } else if (!/^[0-9]+$/.test(data.phone)) {
+            validationErrors.phone = "Phone Numbers must be numbers only";
+          }
+
+          if (!data.gender) {
+            validationErrors.gender = "Gender is required.";
+          }
+
+          if (data.range.trim() === "") {
+            validationErrors.range = "Range is required";
+          }
+
+          if (!data.image) {
+            validationErrors.image = "Photo is required";
+          }
+
+          if (!data.file) {
+            validationErrors.file = "Resume is required";
+          }
+
+          if (!data.checkbox) {
+            validationErrors.checkbox = "You must agree to the privacy policy.";
+          }
+
+          setError(validationErrors);
+
+          if (Object.keys(validationErrors).length === 0) {
+            console.log(data);
+            setSubmitted(true);
+          } else {
+            setSubmitted(false);
+            console.log("form has errors");
+          }
+        };
+
+        const handleReset = () => {
+          setData({
+            name: "",
+            email: "",
+            age: "",
+            phone: "",
+            gender: "",
+            range: "",
+            image: null,
+            file: null,
+            checkbox: false,
+          });
+          setImagePreview(null);
+          setFilePreview(null);
+          setError({});
+          setSubmitted(false);
+        };
+        return (
+          <>
+            <h1> This is a react form</h1>
+            <form onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="name">Name*</label>
+                <input
+                  name="name"
+                  type="text"
+                  value={data.name}
+                  onChange={handleChange}
+                />
+                {error.name && (
+                  <span style={{ color: "red" }}>{error.name} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="email">Email* </label>
+                <input
+                  name="email"
+                  type="email"
+                  value={data.email}
+                  onChange={handleChange}
+                />
+                {error.email && (
+                  <span style={{ color: "red" }}>{error.email} </span>
+                )}
+              </div>
+              <div>
+                <label htmlFor="email">Age* </label>
+                <input
+                  name="age"
+                  type="age"
+                  value={data.age}
+                  onChange={handleChange}
+                />
+                {error.age && (
+                  <span style={{ color: "red" }}>{error.age} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="phone">Phone*</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  value={data.phone}
+                  onChange={handleChange}
+                />
+                {error.phone && (
+                  <span style={{ color: "red" }}>{error.phone} </span>
+                )}
+              </div>
+
+              <div>
+                <label id="gender-label">Gender* </label>
+                <input
+                  name="gender"
+                  type="radio"
+                  value="male"
+                  checked={data.gender === "male"}
+                  id="male"
+                  onChange={handleChange}
+                />{" "}
+                <label htmlFor="male"> Male </label>
+                <input
+                  name="gender"
+                  type="radio"
+                  value="female"
+                  checked={data.gender === "female"}
+                  id="female"
+                  onChange={handleChange}
+                />
+                <label htmlFor="female"> Female </label>
+                <input
+                  name="gender"
+                  type="radio"
+                  checked={data.gender === "others"}
+                  value="others"
+                  id="others"
+                  onChange={handleChange}
+                />
+                <label htmlFor="others">Others</label>
+                {error.gender && (
+                  <span style={{ color: "red" }}>{error.gender} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="range"> Range </label>
+                <select name="range" onChange={handleChange}>
+                  <option value=""> Select Option </option>
+                  <option value="lakh"> Lakh </option>
+                  <option value="million"> Million </option>
+                  <option value="billion"> Billion </option>
+                  <option value="trillion"> Triillion </option>
+                  <option value="quadrillion"> quadrillion </option>
+                </select>
+                {error.range && (
+                  <span style={{ color: "red" }}>{error.range} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="image"> upload Image </label>
+                <input name="image" type="file" onChange={handleChange} />
+                {error.image && (
+                  <span style={{ color: "red" }}>{error.image} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="file"> upload Resume </label>
+                <input name="file" type="file" onChange={handleChange} />
+                {error.file && (
+                  <span style={{ color: "red" }}>{error.file} </span>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="checkbox"> Privacy Policy </label>
+                <input
+                  name="checkbox"
+                  type="checkbox"
+                  checked={data.checkbox || false}
+                  onChange={handleChange}
+                />
+                {error.checkbox && (
+                  <span style={{ color: "red" }}>{error.checkbox} </span>
+                )}
+              </div>
+
+              <button type="submit">Submit</button>
+              <button type="button" onClick={handleReset}>
+                Reset
+              </button>
+            </form>
+
+            {submitted && (
+              <div>
+                <h2>Form DATA </h2>
+                <pre>{JSON.stringify(data, null, 2)} </pre>
+                {imagePreview && (
+                  <img src={imagePreview} alt="preview" width="300px" />
+                )}
+                {filePreview && (
+                  <embed
+                    title="file"
+                    src={filePreview}
+                    width="300px"
+                    height="300px"
+                    fullscreen="true"
+                  />
+                )}
+              </div>
+            )}
+          </>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
